@@ -1,0 +1,17 @@
+[
+  {
+    "id": "g2-math-set01",
+    "title": "Grade 2 • Add & Subtract — Set 01",
+    "subject": "Math",
+    "grade": 2,
+    "questions": [
+      { "question": "12 − 5 =", "options": ["5", "7", "8", "6"], "answer_index": 1 },
+      { "question": "7 + 8 =", "options": ["14", "15", "16", "13"], "answer_index": 1 },
+      { "question": "Even or odd: 9", "options": ["Even", "Odd", "Both", "None"], "answer_index": 1 },
+      { "question": "3 × 2 =", "options": ["5", "6", "7", "8"], "answer_index": 1 },
+      { "question": "20 − 11 =", "options": ["8", "9", "10", "7"], "answer_index": 1 },
+      { "question": "10 is how many tens?", "options": ["0", "1", "2", "10"], "answer_index": 1 }
+    ]
+  }
+]
+

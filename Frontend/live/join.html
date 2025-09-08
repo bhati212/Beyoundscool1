@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Join Live • Beyondscool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:Inter,system-ui;background:#f7f2ea;margin:0;display:grid;place-items:center;height:100dvh}
+    .card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 8px 24px rgba(0,0,0,.06);width:min(420px,92vw)}
+    h1{margin:0 0 10px 0;font-size:22px}
+    .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+    input{height:44px;border-radius:12px;border:1.5px solid rgba(0,0,0,.12);padding:0 14px;font-weight:800}
+    .btn{height:46px;border-radius:12px;border:0;background:#111;color:#fff;font-weight:800;margin-top:10px}
+    .muted{color:#6b6b6b}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Join a live quiz</h1>
+    <div class="field">
+      <label>Enter PIN</label>
+      <input id="pin" placeholder="123456" maxlength="6" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label>Nickname</label>
+      <input id="nick" placeholder="Your name">
+    </div>
+    <button class="btn" id="btnJoin">Join</button>
+    <div class="muted" id="msg" style="margin-top:8px"></div>
+    
+    <!-- Question display area -->
+    <div id="questionArea" style="display:none; margin-top:20px;">
+      <h3 id="questionText"></h3>
+      <div id="optionsList"></div>
+      <div id="answerStatus" style="margin-top:10px; font-weight:bold;"></div>
+    </div>
+  </div>
+
+<script type="module">
+  import "../assets/js/supabaseClient.js";
+  import { supabase } from "../assets/js/supabaseClient.js";
+
+  const pinEl = document.getElementById('pin');
+  const nickEl = document.getElementById('nick');
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('btnJoin');
+
+  async function join(){
+    const pin = pinEl.value.trim();
+    const nickname = nickEl.value.trim();
+    if(pin.length !== 6){ msg.textContent = "PIN must be 6 digits."; return; }
+    if(!nickname){ msg.textContent = "Please enter a nickname."; return; }
+
+    // check room exists
+    const { data: room } = await supabase.from('rooms').select('pin').eq('pin', pin).maybeSingle();
+    if(!room){ msg.textContent = "Room not found."; return; }
+
+    // insert player
+    const { error } = await supabase.from('players').insert({ room_pin: pin, nickname });
+    if(error){ msg.textContent = "Join failed: " + error.message; return; }
+
+    msg.textContent = "Joined! Waiting for host…";
+    
+    // Set up realtime channel to receive questions
+    if (channel) await supabase.removeChannel(channel);
+    channel = supabase.channel('room-'+pin)
+      .on('broadcast', { event: 'question' }, (payload) => {
+        displayQuestion(payload.payload);
+      })
+      .subscribe();
+  }
+
+  btn.addEventListener('click', join);
+  pinEl.addEventListener('keydown', e=> e.key==='Enter' && join());
+  nickEl.addEventListener('keydown', e=> e.key==='Enter' && join());
+</script>
+</body>
+</html>

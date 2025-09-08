@@ -1,0 +1,17 @@
+[
+  {
+    "id": "g1-math-set01",
+    "title": "Grade 1 • Numbers — Set 01",
+    "subject": "Math",
+    "grade": 1,
+    "questions": [
+      { "question": "Which is bigger?", "options": ["4", "7", "3", "2"], "answer_index": 1 },
+      { "question": "2 + 3 =", "options": ["6", "4", "5", "3"], "answer_index": 2 },
+      { "question": "What comes after 7?", "options": ["6", "8", "9", "5"], "answer_index": 1 },
+      { "question": "9 − 1 =", "options": ["10", "7", "8", "6"], "answer_index": 2 },
+      { "question": "5 − 2 =", "options": ["4", "3", "2", "1"], "answer_index": 1 },
+      { "question": "How many sides does a triangle have?", "options": ["2", "3", "4", "5"], "answer_index": 1 }
+    ]
+  }
+]
+

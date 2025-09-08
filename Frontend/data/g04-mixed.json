@@ -1,0 +1,17 @@
+[
+  {
+    "id": "g4-math-set01",
+    "title": "Grade 4 • Fractions & LCM — Set 01",
+    "subject": "Math",
+    "grade": 4,
+    "questions": [
+      { "question": "Equivalent to 1/2 is", "options": ["2/4", "1/3", "3/6", "Both A and C"], "answer_index": 3 },
+      { "question": "LCM of 4 and 6", "options": ["8", "10", "12", "16"], "answer_index": 2 },
+      { "question": "Right angle is", "options": ["45°", "60°", "90°", "120°"], "answer_index": 2 },
+      { "question": "24 ÷ 6 =", "options": ["3", "4", "5", "6"], "answer_index": 1 },
+      { "question": "Area of rectangle 6×4 =", "options": ["24", "20", "18", "12"], "answer_index": 0 },
+      { "question": "3/4 of 20 is", "options": ["10", "12", "14", "15"], "answer_index": 3 }
+    ]
+  }
+]
+

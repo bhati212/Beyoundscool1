@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Profile — Beyondscool</title>
+  <link rel="stylesheet" href="../assets/css/quizui.css"/>
+  <style>
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjusted minmax value */
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .character-card {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex; /* Added flexbox */
+      flex-direction: column; /* Stack items vertically */
+      justify-content: space-between; /* Distribute space evenly */
+      min-height: 200px; /* Ensure a minimum height */
+    }
+    .character-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .character-card .emoji {
+      font-size: 2.5rem;
+    }
+    .character-card .cost {
+      font-weight: bold;
+      color: #333;
+    }
+    .character-card button {
+      margin-top: 0.5rem;
+      width: 100%;
+    }
+    .character-card button:disabled {
+      background-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+    #message {
+        transition: opacity 0.3s;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+        .character-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Smaller cards on smaller screens */
+        }
+        .character-card {
+            padding: 0.75rem; /* Reduced padding */
+            min-height: 160px; /* Reduced minimum height */
+        }
+        .character-card .emoji {
+            font-size: 2rem; /* Smaller emoji */
+        }
+    }
+
+    @media (max-width: 576px) {
+        .character-grid {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Even smaller cards */
+            gap: 0.5rem; /* Reduced gap */
+        }
+        .character-card {
+            padding: 0.5rem; /* Further reduced padding */
+            min-height: 140px; /* Further reduced minimum height */
+        }
+        .character-card .emoji {
+            font-size: 1.75rem; /* Even smaller emoji */
+        }
+    }
+  </style>
+</head>
+<body class="qz-body">
+  <header class="qz-top slim">
+    <div class="qz-wrap" style="display:flex;align-items:center;gap:12px">
+      <div class="qz-brand">Profile & Store</div>
+      <div class="qz-spacer" style="flex:1"></div>
+      <a class="qz-btn" href="./">Back to Quizzes</a>
+    </div>
+  </header>
+
+  <main class="qz-main">
+    <div class="qz-wrap">
+      <div class="qz-stage">
+        <h2 id="username-display">Loading user...</h2>
+        <p><strong>Your Coins:</strong> <span id="coinsVal" style="font-weight:bold; font-size: 1.2em;">0</span> 🪙</p>
+        <div id="message" style="font-weight: bold; margin-top: 1rem; min-height: 1.2em;"></div>
+      </div>
+
+      <div class="qz-stage" style="margin-top: 1rem;">
+        <h3>My Characters</h3>
+        <div id="my-characters" class="character-grid">
+          <p>Loading your characters...</p>
+        </div>
+      </div>
+
+      <div class="qz-stage" style="margin-top: 1rem;">
+        <h3>Character Store</h3>
+        <div id="character-store" class="character-grid">
+          <p>Loading characters...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { supabase } from '../assets/js/supabaseClient.js';
+
+    const usernameDisplay = document.getElementById('username-display');
+    const coinsVal = document.getElementById('coinsVal');
+    const myCharactersContainer = document.getElementById('my-characters');
+    const characterStoreContainer = document.getElementById('character-store');
+    const messageEl = document.getElementById('message');
+
+    let currentUser = null;
+    let userProfile = null;
+
+    // Simple character store data
+    const availableCharacters = [
+      { id: 1, emoji: '🦊', name: 'Fox', cost: 50 },
+      { id: 2, emoji: '🐼', name: 'Panda', cost: 100 },
+      { id: 3, emoji: '🐯', name: 'Tiger', cost: 150 },
+      { id: 4, emoji: '🐵', name: 'Monkey', cost: 200 },
+      { id: 5, emoji: '🐸', name: 'Frog', cost: 75 },
+      { id: 6, emoji: '🦄', name: 'Unicorn', cost: 300 }
+    ];
+
+    function loadProfile() {
+      try {
+        const profileData = JSON.parse(localStorage.getItem('beyondscool_profile')) || {
+          coins: 0,
+          streak: 0,
+          last_daily: null,
+          character: null,
+          owned_characters: []
+        };
+        return profileData;
+      } catch (e) {
+        console.error('Error loading profile:', e);
+        return { coins: 0, streak: 0, last_daily: null, character: null, owned_characters: [] };
+      }
+    }
+
+    function saveProfile(profile) {
+      try {
+        localStorage.setItem('beyondscool_profile', JSON.stringify(profile));
+      } catch (e) {
+        console.error('Error saving profile:', e);
+      }
+    }
+
+    async function loadProfileData() {
+      if (!currentUser) return;
+
+      usernameDisplay.textContent = `Welcome, ${currentUser.user_metadata?.username || currentUser.email}`;
+
+      // Load profile from localStorage
+      userProfile = loadProfile();
+      coinsVal.textContent = userProfile.coins;
+
+      renderCharacters();
+    }
+
+    function renderCharacters() {
+      myCharactersContainer.innerHTML = '';
+      characterStoreContainer.innerHTML = '';
+
+      const ownedCharacterIds = new Set(userProfile.owned_characters || []);
+      const ownedCharacters = availableCharacters.filter(c => ownedCharacterIds.has(c.id));
+
+      if (ownedCharacters.length > 0) {
+        ownedCharacters.forEach(char => {
+          const card = document.createElement('div');
+          card.className = 'character-card';
+          card.innerHTML = `
+              <div class="emoji">${char.emoji}</div>
+              <div>${char.name}</div>
+          `;
+          myCharactersContainer.appendChild(card);
+        });
+      } else {
+        myCharactersContainer.innerHTML = '<p>You don\'t own any characters yet. Buy one from the store below!</p>';
+      }
+
+      availableCharacters.forEach(char => {
+        const isOwned = ownedCharacterIds.has(char.id);
+        const canAfford = userProfile.coins >= char.cost;
+        const card = document.createElement('div');
+        card.className = 'character-card';
+        card.innerHTML = `
+            <div class="emoji">${char.emoji}</div>
+            <div>${char.name}</div>
+            <div class="cost">${char.cost} Coins</div>
+            <button class="qz-btn small" data-id="${char.id}" data-cost="${char.cost}" ${isOwned || !canAfford ? 'disabled' : ''}>
+              ${isOwned ? 'Owned' : (canAfford ? 'Buy' : 'Not enough coins')}
+            </button>
+        `;
+        characterStoreContainer.appendChild(card);
+      });
+
+      // Add event listeners only to the buyable buttons
+      characterStoreContainer.querySelectorAll('button[data-id]:not([disabled])').forEach(button => {
+        button.addEventListener('click', handlePurchase);
+      });
+    }
+
+    async function handlePurchase(event) {
+        const button = event.target;
+        const characterId = parseInt(button.dataset.id);
+        const cost = parseInt(button.dataset.cost);
+
+        if (userProfile.coins < cost) {
+            showMessage('Not enough coins!', 'red');
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = 'Purchasing...';
+        
+        // Update profile
+        userProfile.coins -= cost;
+        if (!userProfile.owned_characters) {
+          userProfile.owned_characters = [];
+        }
+        userProfile.owned_characters.push(characterId);
+        
+        // Save profile
+        saveProfile(userProfile);
+        
+        showMessage('Purchase successful!', 'green');
+        
+        // Refresh the display
+        await loadProfileData();
+    }
+
+    function showMessage(msg, color = 'green') {
+        messageEl.textContent = msg;
+        messageEl.style.color = color;
+        messageEl.style.opacity = 1;
+        // Fade out the message after a few seconds
+        setTimeout(() => {
+            messageEl.style.opacity = 0;
+        }, 3000);
+    }
+
+    async function init() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            currentUser = session.user;
+            await loadProfileData();
+        } else {
+            // If no one is logged in, redirect to the auth page
+            window.location.href = '../auth.html';
+        }
+
+        // Listen for when the user logs out
+        supabase.auth.onAuthStateChange((_event, session) => {
+            if (!session) {
+                window.location.href = '../auth.html';
+            }
+        });
+    }
+    
+    init();
+  </script>
+</body>
+</html>

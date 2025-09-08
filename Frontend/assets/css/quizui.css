@@ -1,0 +1,267 @@
+/* ==== Beyondscool — Classic layout with Quiz.com-style colors ==== */
+/* Single-file drop-in for /Frontend/assets/css/quizui.css           */
+
+:root{
+  --wrap: 1100px;
+
+  /* Colors */
+  --bg-start: #FFF3EA;        /* warm cream top */
+  --bg-end:   #F3EEE7;        /* soft beige bottom */
+  --ink:      #141414;
+
+  --teal:     #0F2F34;        /* deep teal for hero blocks */
+  --teal-ink: #E9FBFF;
+
+  --chip-bg:  #EAF0F5;
+  --chip-ink: #33434F;
+
+  --btn:      #FFD54A;
+  --btn-ink:  #141414;
+  --btn-edge: #D4B53A;
+
+  --ring:     rgba(0,0,0,.08);
+  --shadow:   0 8px 24px rgba(0,0,0,.10);
+  --shadow-lg:0 20px 50px rgba(0,0,0,.18);
+}
+
+*{ box-sizing: border-box; }
+html,body{
+  margin:0; padding:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans";
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+}
+
+/* links */
+a{ color:#0b57d0; text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+.inner{ width: min(100% - 32px, var(--wrap)); margin-inline:auto; }
+
+/* ---------- Header (classic) ---------- */
+.classic-header{
+  position: sticky; top:0; z-index:10;
+  backdrop-filter: blur(6px);
+  background: #ffffffcc;
+  border-bottom: 1px solid var(--ring);
+}
+/* push brand to the very left like home page */
+.classic-header .inner{
+  width: calc(100% - 24px);
+  margin: 0;
+  padding: 0 12px;
+  display:grid;
+  grid-template-columns: auto 1fr auto;
+  align-items:center; gap:16px;
+  min-height:70px;
+}
+
+.brand{
+  display:inline-flex; align-items:center; gap:10px;
+  font-weight:800; font-size:24px; color:var(--ink);
+  text-decoration:none;
+}
+.brand img{ width:44px; height:44px; border-radius:50%; object-fit:cover; }
+
+.join{ display:flex; gap:8px; justify-self:center; }
+.inp{
+  height:42px; padding:0 12px; min-width: 180px;
+  border:1px solid var(--ring); border-radius:12px; background:#fff; outline:none;
+  transition: box-shadow .15s ease;
+  font-weight:800;                   /* bolder text inside inputs */
+}
+/* bolder placeholder so it stands out */
+.inp::placeholder{ color:#5a5a5a; font-weight:800; opacity:.95; }
+
+.inp:focus{ box-shadow: 0 0 0 4px rgba(255,213,74,.25); }
+
+.btn{
+  height:42px; padding:0 16px; border-radius:12px;
+  border:0; background: var(--btn); color:var(--btn-ink);
+  font-weight:800; cursor:pointer; letter-spacing:.2px;
+  box-shadow: 0 2px 0 var(--btn-edge), var(--shadow);
+  transition: transform .06s ease, filter .2s ease;
+}
+.btn:hover{ filter:brightness(1.03); }
+.btn:active{ transform: translateY(1px); }
+
+.btn.linkish{
+  background: transparent; border:2px dashed #cfd6dc; color:var(--ink);
+  box-shadow:none; height:40px;
+}
+.btn.linkish:hover{ filter:none; text-decoration:none; }
+
+.avatar{
+  width:40px; height:40px; border-radius:50%;
+  border:2px solid #fff; box-shadow: var(--shadow);
+  background: linear-gradient(135deg, #9ad3ff, #6db0ff);
+}
+
+/* ---- home header (only used on index.html home) ---- */
+.home-header{ position:absolute; top:18px; left:18px; z-index:5; }
+.brand--home{ display:inline-flex; align-items:center; gap:10px; text-decoration:none; }
+.brand--home img{ width:44px; height:44px; border-radius:50%; object-fit:cover; box-shadow:0 4px 12px rgba(0,0,0,.35); }
+.brand--home span{ color:#fff; font-weight:900; font-size:22px; letter-spacing:.2px; }
+
+/* ---------- Main ---------- */
+.classic-main{ padding:18px 0 42px; }
+
+/* Hero row: three teal blocks */
+.hero-grid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 16px;
+}
+.block{ margin:0; }
+.block h1{ margin: 0 0 6px; font-size: 26px; letter-spacing:.2px; }
+.block p{ margin: 4px 0 12px; color:#e0f7ff; }
+.block.teal{
+  background: var(--teal);
+  color: var(--teal-ink);
+  padding:18px;
+  border-radius:16px;
+  box-shadow: var(--shadow-lg);
+}
+
+/* >>> Your request: inside teal blocks the buttons must be white bg + black text */
+.block.teal .btn,
+.block.teal .btn.linkish{
+  background:#fff !important;
+  color:#111 !important;
+  border:0 !important;
+  box-shadow: var(--shadow);
+}
+.block.teal .btn.linkish{ border-style:solid !important; }
+
+/* Separator */
+.sep{ border:0; border-top:1px solid var(--ring); margin:18px 0; }
+
+/* ---------- Library ---------- */
+.library h2{ margin:0 0 10px; font-size:22px; }
+
+/* >>> Center tools row under hero (visually beneath the middle card) */
+.tools{
+  display:flex; gap:10px; align-items:center;
+  margin:8px auto 12px;
+  justify-content:center;
+  width:100%;
+}
+.tools #gradeSel{ min-width: 180px; }
+.tools #search{ min-width: 280px; }
+
+.muted{ color:#5c6973; }
+.hidden{ display:none !important; }
+
+/* Cards with thumbnails — 4 in a row on desktop */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 14px;
+}
+.card{
+  background:#fff; border:1px solid var(--ring); border-radius:14px;
+  padding:10px; display:grid; gap:10px; box-shadow: var(--shadow);
+}
+.thumb{
+  width:100%; aspect-ratio: 16 / 9;
+  border-radius:10px; background:#e8eef4; object-fit: cover; display:block;
+}
+.thumb-ph{
+  width:100%; aspect-ratio:16/9; border-radius:10px;
+  display:grid; place-items:center;
+  background: linear-gradient(135deg, #e8eef4, #f4f7fa);
+  color:#33434f; font-weight:800; letter-spacing:.3px;
+}
+
+/* --- enforce centered meta + title + tags on cards --- */
+.card .meta,
+.card h4,
+.card .tags{
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.meta{
+  font-weight:900; letter-spacing:.2px;
+}
+
+.card h4{
+  margin: 0 0 2px; font-size:15px; color:#26323b;
+  font-weight: 900; letter-spacing:.2px;
+}
+.tags{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.tag{
+  background: var(--chip-bg); color: var(--chip-ink);
+  border-radius:999px; padding:6px 10px; font-size:12.5px; letter-spacing:.2px;
+}
+.row{ display:flex; gap:10px; justify-content:center; }
+
+/* Overlay keyframes (for fades if you use them) */
+@keyframes qzFade { from { opacity:0 } to { opacity:1 } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1200px){
+  .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 900px){
+  .hero-grid{ grid-template-columns: 1fr; }
+  .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+  /* keep tools centered on small screens too */
+  .tools{ justify-content:center; }
+}
+@media (max-width: 600px){
+  .grid{ grid-template-columns: 1fr; }
+  .classic-header .inner{ grid-template-columns: 1fr auto; row-gap:8px; }
+  .join{ grid-column: 1 / -1; justify-self:start; flex-wrap:wrap; }
+}
+
+/* ---------- Solo Play UI (qz-*) ---------- */
+.qz-top{ position:sticky; top:0; z-index:10; background:#fff; border-bottom:1px solid var(--ring); }
+.qz-top.slim{ padding:10px 0; }
+.qz-main{ padding:20px 0 40px; }
+.qz-wrap{ width:min(100% - 32px, var(--wrap)); margin-inline:auto; }
+.qz-brand{ font-weight:900; font-size:22px; }
+.qz-btn{ height:42px; padding:0 14px; border-radius:12px; border:0; background:var(--btn); color:var(--btn-ink); font-weight:800; box-shadow:0 2px 0 var(--btn-edge), var(--shadow); cursor:pointer; }
+.qz-btn-accent{ background:#111; color:#fff; box-shadow: var(--shadow); }
+.qz-btn.hidden{ display:none !important; }
+
+.qz-play{ display:block; }
+.qz-stage{ background:#fff; border:1px solid var(--ring); border-radius:16px; box-shadow:var(--shadow); padding:16px; }
+.qz-title{ font-size:22px; font-weight:900; margin:0 0 4px; }
+.qz-meta{ color:#5c6973; margin-bottom:8px; }
+.qz-timer{ font-weight:900; margin-bottom:10px; }
+.qz-question{ font-size:18px; font-weight:800; margin:6px 0 10px; }
+.qz-options{ display:grid; gap:10px; }
+.qz-opt{ display:block; width:100%; text-align:left; padding:12px 14px; background:#f6f8fb; border:1px solid #e3e7ee; border-radius:12px; cursor:pointer; font-weight:700; }
+.qz-opt.correct{ background:#e6f7ed; border-color:#b9ebc7; }
+.qz-opt.wrong{ background:#ffefef; border-color:#ffd1d1; }
+.qz-feedback{ margin-top:8px; font-weight:800; }
+.qz-actions{ display:flex; gap:10px; margin-top:12px; }
+.qz-powerups{ display:flex; gap:10px; align-items:center; margin-top:10px; }
+
+
+
+.qz-btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.qz-btn-danger:hover {
+    background-color: #c82333;
+}
+
+.options-container {
+    margin-top: 1rem;
+}
+
+.option-group input[type="text"] {
+    flex: 1;
+    margin-left: 0.5rem;
+}
+
+.question-text {
+    width: 100%;
+    margin-bottom: 1rem;
+}

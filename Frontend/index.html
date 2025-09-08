@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Beyondscool</title>
+  <style>
+    /* Home page only — compact buttons, same header + LOGO */
+    :root{
+      --gold:#f1c21b;
+      --gold-edge:#c3a015;
+      --ink:#111;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%}
+    body{
+      background:#000; color:#fff;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans";
+    }
+
+    /* Header with logo + brand text (top-left) */
+    .brand{
+      position:absolute; top:18px; left:18px; z-index:2;
+      display:inline-flex; align-items:center; gap:10px;
+      text-decoration:none;
+    }
+    .brand img{
+      width:44px; height:44px; border-radius:50%;
+      object-fit:cover; box-shadow:0 4px 12px rgba(0,0,0,.35);
+    }
+    .brand span{
+      color:#fff; font-weight:900; font-size:28px; letter-spacing:.4px;
+    }
+
+    /* Center column of buttons */
+    .wrap{min-height:100svh; display:grid; place-items:center}
+    .menu{display:flex; flex-direction:column; gap:28px; width:min(900px,92vw)}
+
+    /* Smaller buttons */
+    .btn-xl{
+      display:block; text-align:center; text-decoration:none;
+      width:min(680px,92vw);
+      margin-inline:auto;
+      padding:20px 18px;
+      font-weight:900;
+      font-size:clamp(22px,4.2vw,34px);
+      letter-spacing:.35px;
+      color:var(--ink);
+      background:var(--gold);
+      border-radius:22px;
+      box-shadow:
+        0 16px 40px rgba(241,194,27,.22),
+        0 2px 0 var(--gold-edge);
+      transition:transform .08s ease, filter .15s ease;
+    }
+    .btn-xl:hover{filter:brightness(1.05)}
+    .btn-xl:active{transform:translateY(2px)}
+
+    @media (max-width:700px){
+      .menu{gap:22px}
+      .btn-xl{width:min(560px,92vw); padding:18px 16px; font-size:clamp(20px,5.2vw,28px)}
+    }
+  </style>
+</head>
+<body>
+  <!-- Put your logo file at: Frontend/assets/img/logo.png -->
+  <a class="brand" href="./">
+    <img src="./assets/img/logo.png" alt="Beyondscool logo">
+    <span>Beyondscool</span>
+  </a>
+
+  <main class="wrap">
+    <nav class="menu" aria-label="Main">
+      <a class="btn-xl" href="./quizzes/">PLAY QUIZ</a>
+      <a class="btn-xl" href="./quizzes/">LIBRARY</a>
+      <a class="btn-xl" href="./games/">PLAY GAMES</a>
+    </nav>
+  </main>
+</body>
+</html>
+

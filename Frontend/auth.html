@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Login / Signup — Beyondscool</title>
+  <link rel="stylesheet" href="./assets/css/quizui.css"/>
+  <style>
+    .auth-form { max-width: 400px; margin: 2rem auto; }
+    .form-toggle { display: flex; justify-content: center; margin-bottom: 1rem; }
+    .toggle-btn { background: none; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; color: #888; }
+    .toggle-btn.active { color: #111; border-bottom: 2px solid var(--btn); }
+    .input-group { margin-bottom: 1rem; }
+    .input-group input { width: 100%; }
+    .hidden { display: none; }
+    #message { text-align: center; margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body class="qz-body">
+  <header class="qz-top slim">
+    <div class="qz-wrap">
+      <div class="qz-brand">Beyondscool</div>
+    </div>
+  </header>
+
+  <main class="qz-main">
+    <div class="auth-form qz-stage">
+      <div class="form-toggle">
+        <button id="login-toggle" class="toggle-btn active">Login</button>
+        <button id="signup-toggle" class="toggle-btn">Sign Up</button>
+      </div>
+
+      <form id="login-form">
+        <div class="input-group">
+          <input type="email" id="login-email" class="inp" placeholder="Email" required>
+        </div>
+        <div class="input-group">
+          <input type="password" id="login-password" class="inp" placeholder="Password" required>
+        </div>
+        <button type="submit" class="qz-btn" style="width: 100%;">Login</button>
+      </form>
+
+      <form id="signup-form" class="hidden">
+        <div class="input-group">
+          <input type="text" id="signup-username" class="inp" placeholder="Username" required>
+        </div>
+        <div class="input-group">
+          <input type="email" id="signup-email" class="inp" placeholder="Email" required>
+        </div>
+        <div class="input-group">
+          <input type="password" id="signup-password" class="inp" placeholder="Password" required>
+        </div>
+        <button type="submit" class="qz-btn" style="width: 100%;">Sign Up</button>
+      </form>
+      <div id="message"></div>
+    </div>
+  </main>
+
+  <script type="module" src="./assets/js/auth.js"></script>
+</body>
+</html>

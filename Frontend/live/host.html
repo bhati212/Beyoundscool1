@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Host Live • Beyondscool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:Inter,system-ui; background:#f7f2ea; margin:0}
+    header{display:flex;gap:10px;align-items:center;padding:14px 20px;background:#fff;border-bottom:1px solid #eee}
+    header img{width:36px;height:36px;border-radius:50%}
+    header h1{font-size:22px;margin:0;font-weight:800}
+    main{max-width:900px;margin:24px auto;padding:0 16px}
+    .panel{background:#fff;border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .pin{font-size:40px;font-weight:800;letter-spacing:.15em}
+    .btn{height:44px;padding:0 16px;border-radius:12px;border:0;background:#f6c41b;font-weight:800}
+    ul{list-style:none;margin:12px 0 0;padding:0;display:flex;gap:10px;flex-wrap:wrap}
+    li{background:#111;color:#fff;border-radius:999px;padding:8px 12px;font-weight:700}
+    .muted{color:#6b6b6b}
+  </style>
+</head>
+<body>
+<header>
+  <img src="../assets/img/logo.png" alt="logo" onerror="this.src='../assets/img/logo.png'"/>
+  <h1>Beyondscool — Host Live</h1>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="row">
+      <button class="btn" id="btnCreate">Create room</button>
+      <div id="pinBox" class="pin"></div>
+      <span class="muted" id="status"></span>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-weight:800;margin-bottom:6px">Players</div>
+      <ul id="players"></ul>
+    </div>
+    <div style="margin-top:14px">
+      <button class="btn" id="btnStart" style="display:none; background:#28a745;">Start Quiz</button>
+    </div>
+  </div>
+
+  <p class="muted" style="margin-top:16px">Share the PIN with students and ask them to open <b>/live/join.html</b>.</p>
+</main>
+
+<script type="module">
+  import "../assets/js/supabaseClient.js";
+  import { supabase } from "../assets/js/supabaseClient.js";
+
+  const btnCreate = document.getElementById('btnCreate');
+  const btnStart = document.getElementById('btnStart');
+  const pinBox = document.getElementById('pinBox');
+  const list = document.getElementById('players');
+  const statusEl = document.getElementById('status');
+
+  let roomPin = null;
+  let channel = null;
+  let quizData = null;
+  let currentQuestionIndex = 0;
+
+  function genPin(){ return Math.floor(100000 + Math.random()*900000).toString(); }
+
+  async function createRoom(){
+    roomPin = genPin();
+    pinBox.textContent = roomPin;
+
+    // Get quiz ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizId = urlParams.get('id');
+    
+    if (!quizId) {
+      statusEl.textContent = "No quiz selected. Please select a quiz from the library.";
+      return;
+    }
+
+    // Load quiz data
+    try {
+      const { data: quiz, error: quizError } = await supabase
+        .from('quizzes')
+        .select('*')
+        .eq('id', quizId)
+        .single();
+
+      if (quizError) throw quizError;
+
+      // Load questions
+      const { data: questions, error: questionsError } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('quiz_id', quizId)
+        .order('id');
+
+      if (questionsError) throw questionsError;
+
+      quizData = {
+        ...quiz,
+        questions: questions || []
+      };
+
+      statusEl.textContent = `Quiz loaded: ${quizData.title}. Waiting for players…`;
+    } catch (error) {
+      statusEl.textContent = "Error loading quiz: " + error.message;
+      return;
+    }
+
+    // Create room in database (optional - for tracking)
+    try {
+      await supabase.from('rooms').upsert({ pin: roomPin, status:'lobby', quiz_id: quizId });
+    } catch (error) {
+      console.log('Room creation failed, continuing anyway:', error.message);
+    }
+
+    list.innerHTML = "";
+
+    // Set up realtime channel for live updates
+    if(channel) await supabase.removeChannel(channel);
+    channel = supabase.channel('room-'+roomPin)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players', filter: `room_pin=eq.${roomPin}` },
+        payload => addPlayer(payload.new.nickname))
+      .subscribe();
+
+    // Load existing players
+    try {
+      const { data: players } = await supabase.from('players').select('nickname').eq('room_pin', roomPin).order('joined_at');
+      (players||[]).forEach(p => addPlayer(p.nickname));
+    } catch (error) {
+      console.log('Could not load existing players:', error.message);
+    }
+
+    // Show start button
+    btnStart.style.display = 'block';
+  }
+
+  function addPlayer(name){
+    const li = document.createElement('li');
+    li.textContent = name;
+    list.appendChild(li);
+  }
+
+  async function startQuiz(){
+    if (!quizData || !quizData.questions.length) {
+      statusEl.textContent = "No quiz data available.";
+      return;
+    }
+
+    currentQuestionIndex = 0;
+    statusEl.textContent = "Quiz started! Question 1 of " + quizData.questions.length;
+    
+    // Hide start button and show quiz controls
+    btnStart.style.display = 'none';
+    
+    // Send first question to all players
+    await sendQuestion(currentQuestionIndex);
+  }
+
+  async function sendQuestion(index){
+    if (!quizData || index >= quizData.questions.length) {
+      statusEl.textContent = "Quiz completed!";
+      return;
+    }
+
+    const question = quizData.questions[index];
+    
+    // Broadcast question to all players in the room
+    if (channel) {
+      await channel.send({
+        type: 'broadcast',
+        event: 'question',
+        payload: {
+          questionIndex: index,
+          totalQuestions: quizData.questions.length,
+          question: {
+            text: question.question_text,
+            options: question.options,
+            correctAnswer: question.correct_answer
+          }
+        }
+      });
+    }
+
+    statusEl.textContent = `Question ${index + 1} of ${quizData.questions.length}: ${question.question_text}`;
+  }
+
+  btnCreate.addEventListener('click', createRoom);
+  btnStart.addEventListener('click', startQuiz);
+</script>
+</body>
+</html>

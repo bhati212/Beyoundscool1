@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Play — Beyondscool</title>
+  <link rel="stylesheet" href="../assets/css/quizui.css"/>
+  <style>
+    .qz-body{background:#F7F2EA;color:#0E0F12}
+  </style>
+  <base href="./">
+  <script>/* keep relative fetch working regardless of base */</script>
+  <script>
+    // Ensure last selected grade is preserved for Daily Deck
+    (function(){
+      var p = new URLSearchParams(location.search);
+      var g = localStorage.getItem('beyondscool_lastGrade')||'';
+      if (!g && p.get('daily')==='1'){
+        alert('Choose your grade on the Quizzes page first.');
+        location.href = './';
+      }
+    })();
+  </script>
+  <script type="module" src="../assets/js/runner.js"></script>
+</head>
+<body class="qz-body">
+  <header class="qz-top slim">
+    <div class="qz-wrap" style="display:flex;align-items:center;gap:12px">
+      <div class="qz-brand">Play</div>
+      <div class="qz-spacer" style="flex:1"></div>
+      <a class="qz-btn" href="./">Back to Quizzes</a>
+    </div>
+  </header>
+
+  <main class="qz-main">
+    <div class="qz-wrap">
+      <div class="qz-play">
+        <div id="stage" class="qz-stage">
+          <div id="qz-title" class="qz-title">Loading…</div>
+          <div id="qz-meta" class="qz-meta">—</div>
+
+          <div class="qz-timer"><span id="tval">60</span>s</div>
+          <div id="qz-question" class="qz-question">—</div>
+          <div id="qz-options" class="qz-options"></div>
+          <div id="qz-feedback" class="qz-feedback"></div>
+
+          <div class="qz-actions">
+            <button id="btn-prev" class="qz-btn">Prev</button>
+            <button id="btn-next" class="qz-btn">Next</button>
+            <button id="btn-finish" class="qz-btn hidden">Finish</button>
+          </div>
+
+          <div class="qz-powerups">
+            <button id="pu-bet" class="qz-btn">Bet ×2</button>
+            <button id="pu-freeze" class="qz-btn">Freeze (20s)</button>
+            <button id="pu-jump" class="qz-btn">Jump</button>
+            <div style="margin-left:auto">Coins: <strong id="coinsVal">0</strong></div>
+          </div>
+        </div>
+
+        <div id="qz-result" class="qz-stage hidden"></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
+
+
+
+

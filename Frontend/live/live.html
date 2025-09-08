@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Live Quiz • Beyondscool</title>
+  <link rel="stylesheet" href="../assets/css/quizui.css"/>
+  <style>
+    .hidden { display: none !important; }
+    .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .leaderboard-table th, .leaderboard-table td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+    .leaderboard-table th { background-color: #f2f2f2; }
+    .player-list li { background: #eee; padding: 5px 10px; border-radius: 99px; }
+  </style>
+</head>
+<body class="qz-body">
+  <header class="qz-top slim">
+    <div class="qz-wrap">
+      <div id="header-title" class="qz-brand">Live Quiz</div>
+    </div>
+  </header>
+
+  <main class="qz-main">
+    <div class="qz-wrap">
+      <!-- Join View -->
+      <div id="join-view" class="qz-stage">
+        <h2>Join a Live Quiz</h2>
+        <input type="text" id="pin-input" class="inp" placeholder="Enter PIN" maxlength="6">
+        <input type="text" id="nick-input" class="inp" placeholder="Enter Nickname" style="margin-top: 10px;">
+        <button id="join-btn" class="qz-btn" style="margin-top: 10px; width: 100%;">Join</button>
+        <div id="join-message" style="margin-top: 1rem; font-weight: bold;"></div>
+      </div>
+
+      <!-- Host View -->
+      <div id="host-view" class="hidden">
+        <div class="qz-stage">
+            <h2 id="quiz-title-host">Loading Quiz...</h2>
+            <p>Share this PIN with players:</p>
+            <h1 id="pin-display" style="font-size: 3rem; letter-spacing: 0.2em; text-align: center; margin: 1rem 0;">- - -</h1>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h3>Players Joined:</h3>
+                <button id="refresh-players-btn" class="qz-btn" style="height: 30px; padding: 0 10px;">Refresh</button>
+            </div>
+            <ul id="player-list" class="player-list" style="display:flex; flex-wrap:wrap; gap:10px; list-style:none; padding:0; min-height: 30px;">
+                <li id="no-players">Waiting for players...</li>
+            </ul>
+            <button id="start-quiz-btn" class="qz-btn qz-btn-accent" style="width: 100%; margin-top: 1rem;" disabled>Start Quiz</button>
+        </div>
+        <div id="host-question-view" class="qz-stage hidden" style="margin-top: 1rem;">
+            <div id="host-question" class="qz-question"></div>
+            <div id="host-timer" class="qz-timer"></div>
+            <div id="answer-tally"></div>
+            <button id="next-question-btn" class="qz-btn" style="width:100%; margin-top:1rem;">Next Question</button>
+            <button id="show-leaderboard-btn" class="qz-btn hidden" style="width:100%; margin-top:1rem;">Show Leaderboard</button>
+        </div>
+      </div>
+      
+      <!-- Player Game View -->
+      <div id="player-game-view" class="hidden">
+          <div class="qz-stage">
+              <div id="player-question" class="qz-question">Waiting for the host to start...</div>
+              <div id="player-timer" class="qz-timer"></div>
+              <div id="player-options" class="qz-options"></div>
+              <button id="skip-question-btn" class="qz-btn" style="width: 100%; margin-top: 1rem; background: #6c757d; display: none;">Skip Question</button>
+          </div>
+      </div>
+
+      <!-- Player Results View -->
+      <div id="player-results-view" class="qz-stage hidden">
+          <h2>Quiz Complete!</h2>
+          <div id="player-score-display" style="text-align: center; margin: 2rem 0;">
+              <h3>Your Score</h3>
+              <div id="player-final-score" style="font-size: 3rem; font-weight: bold; color: #f6c41b;">0</div>
+              <div id="player-coins-earned" style="font-size: 1.5rem; margin-top: 1rem;">+0 🪙</div>
+          </div>
+          <button id="view-leaderboard-btn" class="qz-btn qz-btn-accent" style="width: 100%; margin: 1rem 0;">View Leaderboard</button>
+          <a class="qz-btn" href="../quizzes/index.html" style="width: 100%; text-align: center; display: block;">Back to Library</a>
+      </div>
+
+      <!-- Leaderboard View (for everyone) -->
+      <div id="leaderboard-view" class="qz-stage hidden" style="margin-top: 1rem;">
+        <h2>Final Leaderboard</h2>
+        <table id="leaderboard-table" class="leaderboard-table"></table>
+          <a class="qz-btn" href="../quizzes/index.html" style="width:100%; text-align:center; margin-top:1rem; display:block;">Back to Library</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="../assets/js/live.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Create Quiz — Beyondscool</title>
+  <link rel="stylesheet" href="../assets/css/quizui.css"/>
+  <style>
+    .question-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .option-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .option-group input[type="radio"] {
+        margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body class="qz-body">
+  <header class="qz-top slim">
+    <div class="qz-wrap" style="display:flex;align-items:center;gap:12px">
+      <div class="qz-brand">Create a New Quiz</div>
+      <div class="qz-spacer" style="flex:1"></div>
+      <a class="qz-btn" href="./">Back to Library</a>
+    </div>
+  </header>
+
+  <main class="qz-main">
+    <div class="qz-wrap">
+      <div id="create-quiz-stage" class="qz-stage">
+        <form id="create-quiz-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <input type="text" id="quiz-title" class="inp" placeholder="Quiz Title" required>
+            <input type="text" id="quiz-subject" class="inp" placeholder="Subject" required>
+            <select id="quiz-grade" class="inp" required>
+              <option value="">Select Grade</option>
+              <script>
+                for(let i = 1; i <= 12; i++) {
+                  document.write(`<option value="${i}">Grade ${i}</option>`);
+                }
+              </script>
+            </select>
+            <input type="number" id="quiz-coins" class="inp" placeholder="Coins per correct answer" min="1" max="100" value="5" required>
+          </div>
+
+          <div id="questions-container">
+            <!-- Questions will be added here dynamically -->
+          </div>
+
+          <button type="button" id="add-question-btn" class="qz-btn" style="margin-top: 1rem;">Add Question</button>
+          <hr style="margin: 1rem 0;">
+          <button type="submit" class="qz-btn qz-btn-accent" style="width: 100%; font-size: 1.2rem;">Save Quiz</button>
+        </form>
+        <div id="form-message" style="margin-top: 1rem; text-align: center; font-weight: bold;"></div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="../assets/js/create-quiz.js"></script>
+</body>
+</html>

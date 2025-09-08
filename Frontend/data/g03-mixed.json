@@ -1,0 +1,18 @@
+[
+  {
+    "id": "g3-math-set01",
+    "title": "Grade 3 • Multiplication — Set 01",
+    "subject": "Math",
+    "grade": 3,
+    "questions": [
+      { "question": "4 × 3 =", "options": ["7", "10", "12", "14"], "answer_index": 2 },
+      { "question": "12 ÷ 4 =", "options": ["4", "2", "3", "6"], "answer_index": 2 },
+      { "question": "Half of 8 is", "options": ["2", "4", "6", "8"], "answer_index": 1 },
+      { "question": "Perimeter of rectangle 3×2 =", "options": ["5", "10", "12", "6"], "answer_index": 2 },
+      { "question": "Place value: in 345, the digit '4' is", "options": ["Hundreds", "Tens", "Ones", "Thousands"], "answer_index": 1 },
+      { "question": "5 × 5 =", "options": ["20", "25", "30", "35"], "answer_index": 1 }
+    ]
+  }
+]
+
+

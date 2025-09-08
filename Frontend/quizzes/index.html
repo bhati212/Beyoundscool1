@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Beyondscool • Quizzes</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/quizui.css">
+  <style>
+    :root{
+      --bg:#F7F2EA;
+      --ink:#0E0F12;
+      --teal:#0C2D2C;
+      --chip:#F1EDE5;
+      --brand:#F6C41B;
+      --brand-ink:#121212;
+      --card:#0E2D2C;
+      --card-ink:#ECF4F2;
+      --muted:#7F8B8B;
+      --pill:#111111;
+    }
+    body{background:var(--bg); color:var(--ink); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .site-header{display:flex;align-items:center;gap:14px;padding:14px 22px;background:#fff;border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0;z-index:20}
+    .site-header .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:28px; text-decoration: none; color: var(--ink);}
+    .site-header .brand img{width:38px;height:38px;border-radius:50%}
+    .site-header .brand span {
+        display: block; /* Show by default */
+    }
+    .site-header .top-inputs{margin-left:auto;display:flex;gap:10px;align-items:center}
+    .chip-input{height:44px;padding:0 14px;border:1.5px solid rgba(0,0,0,.1);border-radius:12px;background:#fff;font-weight:700; max-width: 100px;} /* Limit width */
+    .btn-join{height:44px;padding:0 18px;border-radius:12px;border:none;background:var(--brand);font-weight:800; cursor: pointer;}
+    .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(180deg,#A5C7FF,#6FA3FF); cursor: pointer;}
+    main{padding:28px 22px;max-width:1240px;margin:auto}
+    .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
+    .hero{background:var(--card);color:var(--card-ink);border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+    .hero h3{font-size:28px;margin:0 0 6px 0}
+    .hero p{color:#CFE6E3;margin:0 0 16px 0}
+    .hero .cta{display:inline-block;background:#fff;color:#000;border-radius:12px;padding:10px 16px;font-weight:800;text-decoration: none;}
+    .hero .cta.solid{border:0;background:var(--brand);color:#000}
+    .hero .cta.ghost{background:#0f1f1f;color:#fff;}
+    .controls{display:flex;gap:14px;align-items:center;margin:6px 0 14px}
+    .select, .search{height:46px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:#fff}
+    .select{padding:0 14px;min-width:180px;font-weight:700}
+    .search{flex:1;display:flex;align-items:center;padding:0 14px}
+    .search input{border:0;outline:0;width:100%;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.06);display:flex;flex-direction:column}
+    .thumb{background:#EDE7F6;display:grid;place-items:center;height:140px}
+    .thumb span{font-size:44px;font-weight:800;color:#6B46C1}
+    .card-body{padding:14px; display: flex; flex-direction: column; flex-grow: 1;}
+    .title{font-weight:800;font-size:18px;line-height:1.25;margin:2px 0 10px}
+    .tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--chip);font-weight:700;color:#3b3b3b}
+    .actions{display:flex;gap:10px; margin-top: auto;}
+    .btn{flex:1;height:42px;border-radius:12px;border:0;font-weight:800; text-decoration: none; display: grid; place-items: center;}
+    .btn.start{background:var(--brand)}
+    .btn.host{background:#111;color:#fff}
+    .empty{padding:28px;background:#fff;border-radius:14px;border:1px dashed rgba(0,0,0,.2)}
+    @media (max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:820px){.hero-row{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:560px){.grid{grid-template-columns:1fr}}
+
+    @media (max-width: 560px) {
+        .site-header .brand span {
+            display: none; /* Hide on smaller screens */
+        }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <img src="../assets/img/logo.png" alt="logo" onerror="this.src='../assets/img/logo.png'">
+      <span>Beyondscool</span>
+    </a>
+    <div class="top-inputs" id="auth-links">
+      <!-- Auth state will be rendered here by JS -->
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-row">
+      <div class="hero">
+        <h3>Host live</h3>
+        <p>Share a 6-digit code. Players join instantly.</p>
+        <a class="cta" href="#grid" id="pick-quiz">Pick a quiz below →</a>
+      </div>
+      <div class="hero">
+        <h3>Daily Deck</h3>
+        <p>5 questions/day tuned to your grade &amp; streak.</p>
+        <a class="cta solid" href="./play.html?daily=1" id="daily-start">Start</a>
+      </div>
+      <div class="hero">
+        <h3>Create Your Own</h3>
+        <p>Build a new quiz and challenge your friends.</p>
+        <a class="cta ghost" href="./create-quiz.html" id="create-quiz-btn">Create Quiz</a>
+      </div>
+    </section>
+
+    <h2 style="font-weight:900;margin:10px 0 8px">Library</h2>
+    <div class="controls">
+      <select id="grade" class="select" aria-label="Grade"></select>
+      <div class="search">
+        <input id="search" type="search" placeholder="Search subject or title">
+      </div>
+    </div>
+
+    <div id="grid" class="grid" aria-live="polite"></div>
+    <div id="empty" class="empty" style="display:none">No quizzes for this grade yet.</div>
+  </main>
+
+  <script type="module" src="../assets/js/quizzes.js"></script>
+</body>
+</html>
