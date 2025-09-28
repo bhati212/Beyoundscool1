@@ -1,113 +1,168 @@
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Beyondscool — Notes</title>
   <link rel="stylesheet" href="../assets/css/main.css" />
+  <style>
+    #langModal { border: none; border-radius: 12px; padding: 0; max-width: 500px; }
+    #langModal::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
+    .lang-modal-content { padding: 24px; text-align: center; }
+    .lang-modal-content select { width: 100%; padding: 12px; margin: 16px 0; font-size: 16px; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viewer-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: 70vh; }
+    .viewer-panel { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+    .viewer-panel h4 { padding: 12px 16px; margin: 0; background: var(--panel-2); }
+    .viewer-panel iframe { flex-grow: 1; border: none; }
+    .translation-content { padding: 16px; overflow-y: auto; white-space: pre-wrap; }
+  </style>
 </head>
 <body>
+
+  <dialog id="langModal">
+    <div class="lang-modal-content">
+      <h2 data-lang-key="modalTitle">Choose Your Language</h2>
+      <select id="langSelect">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+        <option value="mr">मराठी (Marathi)</option>
+      </select>
+      <button class="btn" id="saveLangBtn" data-lang-key="saveButton">Save</button>
+    </div>
+  </dialog>
+
   <header class="topbar">
     <div class="container">
-      <div class="brand">Beyondscool</div>
-      <div class="spacer"></div>
-      <nav class="nav">
-        <a class="link active" href="/notes/">Notes</a>
-        <a class="link" href="/quizzes/">Quizzes</a>
-      </nav>
-      <button class="btn secondary" id="openPrefs">Preferences</button>
+      <div class="brand">Beyondscool</div> <div class="spacer"></div>
+      <nav class="nav"><a class="link active" href="/notes/">Notes</a> <a class="link" href="/quizzes/">Quizzes</a></nav>
+      <button class="btn secondary" id="changeLangBtn">Language</button>
     </div>
   </header>
 
   <main class="container grid">
     <section class="card">
-      <div class="card-head">
-        <h1>Notes Library</h1>
-        <div class="hint">Filtered by your Board / Grade / Language</div>
-      </div>
-      <div id="cards" class="grid-cards"></div>
+      <div class="card-head"><h1 data-lang-key="libraryTitle">Notes Library</h1></div>
+      <div id="notes-container"><p class="muted">Loading notes...</p></div>
     </section>
     <section class="card">
-      <div class="card-head"><h2 id="viewerTitle">Open a note…</h2></div>
-      <div class="viewer">
-        <div class="overlay-top" title="Read-only view"></div>
-        <iframe id="viewerFrame" loading="lazy" referrerpolicy="no-referrer"></iframe>
-        <div class="watermark">Beyondscool • Read-only</div>
+      <div class="card-head"><h2 id="viewerTitle" data-lang-key="viewerTitle">Open a note...</h2></div>
+      <div class="viewer-container">
+        <div class="viewer-panel"><h4>Original PDF</h4><iframe id="viewerFrame" loading="lazy"></iframe></div>
+        <div class="viewer-panel">
+          <h4 id="translation-header">Translation</h4>
+          <div id="translation-content" class="translation-content"><p class="muted">Select a note to see the translation.</p></div>
+        </div>
       </div>
-      <p class="tiny">True blocking of downloads isn't possible on the web. This hides the default toolbar and adds a watermark.</p>
     </section>
   </main>
 
-  <!-- Preferences Modal -->
-  <dialog id="prefs" class="modal">
-    <form method="dialog" class="panel" id="prefsForm">
-      <div class="panel-head"><h3>Your Preferences</h3><button class="btn ghost" value="cancel" formmethod="dialog">Close</button></div>
-      <div class="grid-2">
-        <label class="field"><span>Board</span><select id="prefBoard"><option>CBSE</option><option>ICSE</option></select></label>
-        <label class="field"><span>Grade</span><select id="prefGrade"><option>6</option><option>7</option><option>8</option><option selected>10</option><option>11</option><option>12</option></select></label>
-        <label class="field"><span>Language</span><select id="prefLanguage"><option selected>English</option><option>Hindi</option></select></label>
-        <label class="field"><span>Subjects (Ctrl/Cmd to multi-select)</span><select id="prefSubjects" multiple><option selected>Maths</option><option>Science</option><option>English</option></select></label>
-      </div>
-      <div class="field"><span>Interests</span><div class="badges">
-        <label><input type="checkbox" value="PYQ" class="chip"> PYQ</label>
-        <label><input type="checkbox" value="Speed Drills" class="chip"> Speed Drills</label>
-        <label><input type="checkbox" value="Tricky" class="chip"> Tricky</label>
-        <label><input type="checkbox" value="Formula Heavy" class="chip"> Formula Heavy</label></div>
-      </div>
-      <div class="actions"><button class="btn" id="savePrefs">Save</button></div>
-    </form>
-  </dialog>
-
   <script type="module">
-    import { $, $$, DEFAULT_PREFS, openPrefsDialog, hydratePrefsForm, savePrefsFromForm, getPrefs } from '../assets/js/prefs.js';
+    import { uiTranslations } from '../assets/js/lang.js';
+    import { supabase } from '../assets/js/supabaseClient.js';
 
-    async function loadNotes(){
-      const res = await fetch('../data/notes.json', { cache:'no-store' }).catch(()=>null);
-      if(res && res.ok) return res.json();
-      const res2 = await fetch('../data/notes.sample.json', { cache:'no-store' });
-      return res2.json();
+    const $ = (s) => document.querySelector(s);
+    let allNotes = [];
+    let currentLang = 'en';
+    let isInitialized = false;
+
+    function applyLanguage(lang) {
+      currentLang = lang; localStorage.setItem('user_lang', lang);
+      const translations = uiTranslations[lang] || uiTranslations.en;
+      document.querySelectorAll('[data-lang-key]').forEach(el => {
+        const key = el.getAttribute('data-lang-key');
+        if (translations[key]) el.textContent = translations[key];
+      });
+      if (isInitialized) renderNotes();
     }
 
-    function tagBadge(t){ return `<span class="badge">${t}</span>`; }
-    function cardHTML(n){
-      const tags=(n.tags||[]).map(tagBadge).join('');
-      const practice = n.practice_link? `<a class="btn small" target="_blank" href="${n.practice_link}">Practice 3 MCQs</a>`:'';
-      const openBtn = n.file_url? `<button class="btn small" data-open="${encodeURIComponent(n.file_url)}" data-title="${encodeURIComponent(n.title)}">Open</button>`:'';
-      return `<div class="card-note">
-        <div class="note-title">${n.title}</div>
-        <div class="note-desc">${n.description||""}</div>
-        <div class="badges">${tags}</div>
-        <div class="actions">${openBtn}${practice}</div>
-      </div>`;
+    async function getTranslation(note, lang) {
+      const translationContentEl = $('#translation-content');
+      let translatedText = note.translations_text?.[lang];
+      if (translatedText) {
+        translationContentEl.textContent = translatedText; return;
+      }
+
+      translationContentEl.innerHTML = `<p class="muted">Translating...</p>`;
+      try {
+        const { data, error } = await supabase.functions.invoke('translate-note', {
+          body: { note_id: note.id, storage_path: note.storage_path, target_language: lang }
+        });
+        if (error) throw error;
+        translationContentEl.textContent = data.translatedText;
+        const noteToUpdate = allNotes.find(n => n.id === note.id);
+        if (noteToUpdate) {
+            if (!noteToUpdate.translations_text) noteToUpdate.translations_text = {};
+            noteToUpdate.translations_text[lang] = data.translatedText;
+        }
+      } catch (e) {
+        translationContentEl.textContent = `Error: Could not translate. ${e.message}`;
+      }
+    }
+    
+    function renderNotes() {
+        const notesContainer = $('#notes-container');
+        notesContainer.innerHTML = '';
+        const notesByCategory = allNotes.reduce((acc, note) => {
+            const category = note.category || "Uncategorized";
+            if (!acc[category]) acc[category] = [];
+            acc[category].push(note);
+            return acc;
+        }, {});
+        for (const category in notesByCategory) {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'notes-category';
+            categoryDiv.innerHTML = `<h3>${category}</h3>`;
+            const notesList = document.createElement('div');
+            notesList.className = 'notes-list';
+            notesByCategory[category].forEach(note => {
+                const noteTitle = note.translations[currentLang]?.title || note.translations.en.title;
+                const openButtonText = uiTranslations[currentLang]?.openButton || 'Open';
+                const noteEl = document.createElement('div');
+                noteEl.className = 'note-item';
+                noteEl.innerHTML = `<span>${noteTitle}</span><button class="btn small" data-id="${note.id}">${openButtonText}</button>`;
+                notesList.appendChild(noteEl);
+            });
+            categoryDiv.appendChild(notesList);
+            notesContainer.appendChild(categoryDiv);
+        }
     }
 
-    function filterByPrefs(data, p){
-      return data.filter(n=>{
-        const okB=!p.board||n.board===p.board;
-        const okG=!p.grade||String(n.grade)===String(p.grade);
-        const okL=!p.language||(n.language||"English")===p.language;
-        return okB && okG && okL;
+    async function init() {
+      if (isInitialized) return; isInitialized = true;
+      try {
+        const { data, error } = await supabase.from('notes').select('*');
+        if (error) throw error; allNotes = data;
+      } catch(e) { $('#notes-container').innerHTML = `<p class="muted">Error: Could not load notes data.</p>`; }
+      renderNotes();
+
+      $('#notes-container').addEventListener('click', (e) => {
+        const button = e.target.closest('button[data-id]');
+        if (!button) return;
+        const note = allNotes.find(n => n.id === button.dataset.id);
+        if (!note) return;
+        const { data: { publicUrl } } = supabase.storage.from('notes-pdfs').getPublicUrl(note.storage_path);
+        $('#viewerFrame').src = publicUrl;
+        $('#viewerTitle').textContent = note.translations[currentLang]?.title || note.translations.en.title;
+        if (currentLang === 'en') {
+          $('#translation-header').textContent = 'Translation';
+          $('#translation-content').innerHTML = `<p class="muted">Original language is English.</p>`;
+        } else {
+          $('#translation-header').textContent = `Translation to ${$('#langSelect option:checked').textContent}`;
+          getTranslation(note, currentLang);
+        }
       });
     }
 
-    async function init(){
-      const data = await loadNotes();
-      const prefs = { ...DEFAULT_PREFS, ...getPrefs() };
-      const list = filterByPrefs(data, prefs);
-      const container = $("#cards");
-      container.innerHTML = list.map(cardHTML).join("");
-      container.addEventListener("click", (e)=>{
-        const btn = e.target.closest("[data-open]"); if(!btn) return;
-        const url = decodeURIComponent(btn.dataset.open);
-        const title = decodeURIComponent(btn.dataset.title);
-        $("#viewerFrame").src = url; $("#viewerTitle").textContent = title;
-        document.querySelector(".viewer")?.scrollIntoView({ behavior:"smooth" });
-      }, { once:true });
-    }
-
-    document.getElementById("openPrefs")?.addEventListener("click", openPrefsDialog);
-    document.getElementById("savePrefs")?.addEventListener("click", savePrefsFromForm);
-    init();
+    const savedLang = localStorage.getItem('user_lang');
+    if (savedLang) { applyLanguage(savedLang); init(); }
+    else { $('#langModal').showModal(); }
+    $('#changeLangBtn')?.addEventListener('click', () => $('#langModal').showModal());
+    $('#saveLangBtn').addEventListener('click', () => {
+      const selectedLang = $('#langSelect').value;
+      $('#langModal').close();
+      applyLanguage(selectedLang);
+      if (!isInitialized) init();
+    });
   </script>
 </body>
 </html>

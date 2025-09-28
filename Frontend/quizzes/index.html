@@ -27,18 +27,37 @@
     .site-header .brand span {
         display: block; /* Show by default */
     }
+    
+    /* --- NEW CSS FOR NAVIGATION --- */
+    .site-header .main-nav {
+        margin: 0 auto; /* This will push the nav to the center */
+        display: flex;
+        gap: 40px;
+    }
+    .site-header .main-nav a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        font-size: 16px;
+        transition: color 0.2s ease;
+    }
+    .site-header .main-nav a:hover {
+        color: #000;
+    }
+    /* --- END OF NEW CSS --- */
+
     .site-header .top-inputs{margin-left:auto;display:flex;gap:10px;align-items:center}
     .chip-input{height:44px;padding:0 14px;border:1.5px solid rgba(0,0,0,.1);border-radius:12px;background:#fff;font-weight:700; max-width: 100px;} /* Limit width */
-    .btn-join{height:44px;padding:0 18px;border-radius:12px;border:none;background:var(--brand);font-weight:800; cursor: pointer;}
+    .btn-join{color:#fff;height:44px;padding:0 18px;border-radius:12px;border:none;background:#0f1f1f;font-weight:800; cursor: pointer;}
     .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(180deg,#A5C7FF,#6FA3FF); cursor: pointer;}
     main{padding:28px 22px;max-width:1240px;margin:auto}
     .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
-    .hero{background:var(--card);color:var(--card-ink);border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+    .hero{background:#000;color:var(--card-ink);border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
     .hero h3{font-size:28px;margin:0 0 6px 0}
     .hero p{color:#CFE6E3;margin:0 0 16px 0}
     .hero .cta{display:inline-block;background:#fff;color:#000;border-radius:12px;padding:10px 16px;font-weight:800;text-decoration: none;}
-    .hero .cta.solid{border:0;background:var(--brand);color:#000}
-    .hero .cta.ghost{background:#0f1f1f;color:#fff;}
+    .hero .cta.solid{border:0;color:#000}
+    .hero .cta.ghost{background:#fff;color:#0f1f1f;}
     .controls{display:flex;gap:14px;align-items:center;margin:6px 0 14px}
     .select, .search{height:46px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:#fff}
     .select{padding:0 14px;min-width:180px;font-weight:700}
@@ -54,7 +73,7 @@
     .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--chip);font-weight:700;color:#3b3b3b}
     .actions{display:flex;gap:10px; margin-top: auto;}
     .btn{flex:1;height:42px;border-radius:12px;border:0;font-weight:800; text-decoration: none; display: grid; place-items: center;}
-    .btn.start{background:var(--brand)}
+    .btn.start{background:#fff}
     .btn.host{background:#111;color:#fff}
     .empty{padding:28px;background:#fff;border-radius:14px;border:1px dashed rgba(0,0,0,.2)}
     @media (max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
@@ -71,18 +90,24 @@
 <body>
   <header class="site-header">
     <a href="../index.html" class="brand">
-      <img src="../assets/img/logo.png" alt="logo" onerror="this.src='../assets/img/logo.png'">
+      <img src="../assets/img/log.jpg" alt="logo" onerror="this.src='../assets/img/logo.png'">
       <span>Beyondscool</span>
     </a>
+
+    <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/library">Library</a>
+        <a href="/quiz">Play Quiz</a>
+        <a href="/games">Play Games</a>
+    </nav>
     <div class="top-inputs" id="auth-links">
-      <!-- Auth state will be rendered here by JS -->
-    </div>
+      </div>
   </header>
 
   <main>
     <section class="hero-row">
       <div class="hero">
-        <h3>Host live</h3>
+        <h3>Play & Host live</h3>
         <p>Share a 6-digit code. Players join instantly.</p>
         <a class="cta" href="#grid" id="pick-quiz">Pick a quiz below →</a>
       </div>
@@ -98,7 +123,7 @@
       </div>
     </section>
 
-    <h2 style="font-weight:900;margin:10px 0 8px">Library</h2>
+    <h2 style="font-weight:900;margin:10px 0 8px">explore</h2>
     <div class="controls">
       <select id="grade" class="select" aria-label="Grade"></select>
       <div class="search">
